@@ -1,8 +1,12 @@
 pipeline {
     agent any
 
+    tools {
+        sonarQubeScanner 'sonar-scanner'
+    }
+
     environment {
-        SONARQUBE_SERVER = 'sonarqube' // Debe coincidir con el nombre configurado en Jenkins
+        SONARQUBE_SERVER = 'sonarqube'
         SONAR_PROJECT_KEY = 'wallipot'
     }
 
@@ -14,24 +18,13 @@ pipeline {
             }
         }
 
-    stage('Análisis con SonarQube') {
-    steps {
-        withSonarQubeEnv("${SONARQUBE_SERVER}") {
-            script {
-                docker.image('sonarsource/sonar-scanner-cli:latest').inside {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                          -Dsonar.sources=. \
-                          -Dsonar.language=js \
-                          -Dsonar.host.url=$SONAR_HOST_URL \
-                          -Dsonar.login=$SONAR_AUTH_TOKEN
-                    '''
+        stage('Análisis con SonarQube') {
+            steps {
+                withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                    sh 'sonar-scanner'
                 }
             }
         }
-    }
-}
 
         stage('Espera Quality Gate') {
             steps {
@@ -45,11 +38,9 @@ pipeline {
             steps {
                 script {
                     def dockerProjectName = "wallipot-frontend"
-
                     dir('docker') {
                         sh "docker-compose -p ${dockerProjectName} down -v --remove-orphans"
                         sh "docker-compose -p ${dockerProjectName} up -d --build"
-
                         echo "Frontend desplegado en Docker. Verifica en: http://localhost:8080"
                     }
                 }
