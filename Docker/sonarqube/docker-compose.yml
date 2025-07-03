@@ -6,3 +6,11 @@ services:
     ports:
       - "8080:80"
     container_name: wallipot_frontend
+
+  sonarqube:
+    image: sonarqube:latest
+    ports:
+      - "9000:9000"
+    container_name: sonarqube
+    environment:
+      - SONAR_JDBC_URL=jdbc:h2:tcp://localhost:9092/sonar
