@@ -17,16 +17,16 @@ pipeline {
         stage('Análisis con SonarQube') {
     steps {
         withSonarQubeEnv("${SONARQUBE_SERVER}") {
-            withEnv(["PATH+SCANNER=${tool 'DefaultScanner'}/bin"]) {
-                sh '''
-                    sonar-scanner \
-                      -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                      -Dsonar.sources=. \
-                      -Dsonar.language=js \
-                      -Dsonar.sourceEncoding=UTF-8 \
-                      -Dsonar.login=$SONAR_AUTH_TOKEN
-                '''
-            }
+            withEnv(["PATH+SCANNER=${tool 'sonar-scanner'}/bin"]) {
+    sh '''
+        sonar-scanner \
+          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+          -Dsonar.sources=. \
+          -Dsonar.language=js \
+          -Dsonar.sourceEncoding=UTF-8 \
+          -Dsonar.login=$SONAR_AUTH_TOKEN
+    '''
+           }
         }
     }
 }
