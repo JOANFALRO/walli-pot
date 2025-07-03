@@ -14,20 +14,22 @@ pipeline {
             }
         }
 
-        stage('Análisis con SonarQube') {
+    stage('Análisis con SonarQube') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                          -Dsonar.sources=. \
-                          -Dsonar.language=js \
-                          -Dsonar.host.url=$SONAR_HOST_URL \
-                          -Dsonar.login=$SONAR_AUTH_TOKEN
-                    '''
-                }
+        withSonarQubeEnv("${SONARQUBE_SERVER}") {
+            docker.image('sonarsource/sonar-scanner-cli:latest').inside {
+                sh '''
+                    sonar-scanner \
+                      -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                      -Dsonar.sources=. \
+                      -Dsonar.language=js \
+                      -Dsonar.host.url=$SONAR_HOST_URL \
+                      -Dsonar.login=$SONAR_AUTH_TOKEN
+                '''
             }
         }
+    }
+}
 
         stage('Espera Quality Gate') {
             steps {
