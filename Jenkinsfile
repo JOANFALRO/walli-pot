@@ -15,17 +15,19 @@ pipeline {
         }
 
     stage('Análisis con SonarQube') {
-            steps {
+    steps {
         withSonarQubeEnv("${SONARQUBE_SERVER}") {
-            docker.image('sonarsource/sonar-scanner-cli:latest').inside {
-                sh '''
-                    sonar-scanner \
-                      -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                      -Dsonar.sources=. \
-                      -Dsonar.language=js \
-                      -Dsonar.host.url=$SONAR_HOST_URL \
-                      -Dsonar.login=$SONAR_AUTH_TOKEN
-                '''
+            script {
+                docker.image('sonarsource/sonar-scanner-cli:latest').inside {
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                          -Dsonar.sources=. \
+                          -Dsonar.language=js \
+                          -Dsonar.host.url=$SONAR_HOST_URL \
+                          -Dsonar.login=$SONAR_AUTH_TOKEN
+                    '''
+                }
             }
         }
     }
