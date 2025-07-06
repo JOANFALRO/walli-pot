@@ -1,4 +1,5 @@
-version: '3'
+version: '3.8'
+
 services:
   frontend:
     image: wallipot-app
@@ -6,6 +7,8 @@ services:
     ports:
       - "8080:80"
     container_name: wallipot_frontend
+    networks:
+      - wallinet
 
   sonarqube:
     image: sonarqube:latest
@@ -14,3 +17,22 @@ services:
     container_name: sonarqube
     environment:
       - SONAR_JDBC_URL=jdbc:h2:tcp://localhost:9092/sonar
+    networks:
+      - wallinet
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - wallinet
+
+networks:
+  wallinet:
+
+volumes:
+  jenkins_home:
