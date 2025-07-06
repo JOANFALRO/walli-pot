@@ -43,7 +43,7 @@ pipeline {
             steps {
                 script {
                     def dockerProjectName = "wallipot-frontend"
-                    dir('docker/sonarqube') {
+                    dir('Docker/sonarqube') {
                         sh "docker-compose -p ${dockerProjectName} down -v --remove-orphans"
                         sh "docker-compose -p ${dockerProjectName} up -d --build"
                         echo "Frontend desplegado en Docker. Verifica en: http://localhost:8080"
