@@ -15,23 +15,22 @@ pipeline {
         }
 
         stage('Análisis con SonarQube') {
-    steps {
-        withSonarQubeEnv("${SONARQUBE_SERVER}") {
-            withEnv(["PATH+SCANNER=${tool 'sonar-scanner'}/bin"]) {
-    sh '''
-        sonar-scanner \
-          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-          -Dsonar.sources=. \
-          -Dsonar.language=js \
-          -Dsonar.sourceEncoding=UTF-8 \
-          -Dsonar.login=$SONAR_AUTH_TOKEN
-    '''
-           }
+            steps {
+                withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                    withEnv(["PATH+SCANNER=${tool 'sonar-scanner'}/bin"]) {
+                        sh '''
+                            sonar-scanner \
+                              -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                              -Dsonar.sources=. \
+                              -Dsonar.language=js \
+                              -Dsonar.sourceEncoding=UTF-8
+                        '''
+                    }
+                }
+            }
         }
-    }
-}
 
-        stage('Espera Quality Gate') {
+        stage('Esperar Quality Gate') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
@@ -39,14 +38,15 @@ pipeline {
             }
         }
 
-        stage('Despliegue con Docker Compose') {
+        stage('Desplegar en Docker') {
             steps {
                 script {
-                    def dockerProjectName = "wallipot-frontend"
-                    dir('Docker/sonarqube') {
-                        sh "docker-compose -p ${dockerProjectName} down -v --remove-orphans"
-                        sh "docker-compose -p ${dockerProjectName} up -d --build"
-                        echo "Frontend desplegado en Docker. Verifica en: http://localhost:8080"
+                    def projectName = "wallipot"
+
+                    // Nos aseguramos de estar en el directorio correcto del docker-compose.yml
+                    dir('Docker') {
+                        sh "docker-compose -p ${projectName} down -v --remove-orphans"
+                        sh "docker-compose -p ${projectName} up -d --build"
                     }
                 }
             }
@@ -58,10 +58,10 @@ pipeline {
             echo 'Pipeline finalizado.'
         }
         success {
-            echo '¡Despliegue exitoso!'
+            echo '✅ ¡Despliegue exitoso! Accede a http://localhost:8080'
         }
         failure {
-            echo 'Falló el pipeline.'
+            echo '❌ El pipeline falló.'
         }
     }
 }
